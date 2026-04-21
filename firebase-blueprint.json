@@ -1,0 +1,23 @@
+{
+  "entities": {
+    "Telemetry": {
+      "title": "Weather Telemetry",
+      "description": "Sensor readings from the Nexus Weather Station Node.",
+      "type": "object",
+      "properties": {
+        "temp": { "type": "number", "description": "Temperature in Celsius" },
+        "humidity": { "type": "number", "description": "Humidity percentage" },
+        "rain": { "type": "integer", "description": "1 if raining, 0 otherwise" },
+        "ip": { "type": "string", "description": "Sender IP address" },
+        "timestamp": { "type": "string", "format": "date-time", "description": "Time of reading" }
+      },
+      "required": ["temp", "humidity", "rain", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/telemetry/{readingId}": {
+      "schema": "Telemetry",
+      "description": "Collection of all historical sensor readings."
+    }
+  }
+}

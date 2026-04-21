@@ -4,55 +4,64 @@ import bodyParser from "body-parser";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { initializeApp } from "firebase/app";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  query, 
+  orderBy, 
+  limit, 
+  getDocs, 
+  serverTimestamp,
+  Timestamp 
+} from "firebase/firestore";
+import firebaseConfig from "./firebase-applet-config.json" assert { type: "json" };
 
 const app = express();
 const PORT = 3000;
+
+// Initialize Firebase
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId);
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Memory storage for latest Weather data
-let currentTelemetry: any = null;
-let history: any[] = [];
+const mockCurrent = () => ({
+  temp: parseFloat((20 + Math.random() * 15).toFixed(1)),
+  humidity: Math.floor(40 + Math.random() * 40),
+  rain: Math.random() > 0.8 ? 1 : 0,
+  timestamp: new Date().toISOString()
+});
 
-const mockData = () => {
-  const temp = parseFloat((20 + Math.random() * 15).toFixed(1));
-  const humidity = Math.floor(40 + Math.random() * 40);
-  const rain = Math.random() > 0.8 ? 1 : 0;
-  
-  return {
-    temp,
-    humidity,
-    rain,
-    timestamp: new Date().toISOString()
-  };
-};
+// ✅ Receive data from ESP8266
+const handlePostData = async (req: any, res: any) => {
+  try {
+    const { temp, humidity, rain, ip } = req.body;
+    
+    // Validate basic types
+    if (typeof temp !== 'number' || typeof humidity !== 'number') {
+      return res.status(400).json({ error: "Invalid sensor data format" });
+    }
 
-// Seed history
-history = Array.from({ length: 20 }, (_, i) => ({
-  temp: 20 + Math.random() * 15,
-  humidity: 40 + Math.random() * 40,
-  rain: Math.random() > 0.9 ? 1 : 0,
-  timestamp: new Date(Date.now() - (20 - i) * 60000).toISOString()
-}));
+    const newData = {
+      temp,
+      humidity,
+      rain: rain ? 1 : 0,
+      ip: ip || req.headers['x-forwarded-for'] || req.ip,
+      timestamp: serverTimestamp()
+    };
 
-// ✅ Receive data from ESP8266 (Compatibility /data and /api/data)
-const handlePostData = (req: any, res: any) => {
-  const newData = {
-    ...req.body,
-    ip: req.body.ip || req.headers['x-forwarded-for'] || req.ip, // Store the reported IP or the request source IP
-    timestamp: new Date().toISOString()
-  };
-  currentTelemetry = newData;
-  history.push(newData);
-  if (history.length > 50) history.shift();
-  
-  console.log("Weather telemetry updated:", currentTelemetry);
-  res.json({ status: "success", received: true });
+    const docRef = await addDoc(collection(db, "telemetry"), newData);
+    console.log("Telemetry stored in Firestore:", docRef.id);
+    
+    res.json({ status: "success", id: docRef.id });
+  } catch (err) {
+    console.error("Firestore write error:", err);
+    res.status(500).json({ error: "Internal database error" });
+  }
 };
 
 app.post("/data", handlePostData);
@@ -60,16 +69,34 @@ app.post("/api/data", handlePostData);
 
 // API Proxy and Fetcher
 app.get("/api/data", async (req, res) => {
-  const current = currentTelemetry || mockData();
-  res.json({ 
-    current,
-    history,
-    status: {
-      system: currentTelemetry ? 'online' : 'offline',
-      lastUpdate: current.timestamp
-    },
-    source: currentTelemetry ? 'esp' : 'mock'
-  });
+  try {
+    const q = query(collection(db, "telemetry"), orderBy("timestamp", "desc"), limit(50));
+    const querySnapshot = await getDocs(q);
+    
+    const history = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        ...data,
+        timestamp: (data.timestamp as Timestamp)?.toDate().toISOString() || new Date().toISOString()
+      };
+    }).reverse();
+
+    const current = history.length > 0 ? history[history.length - 1] : mockCurrent();
+
+    res.json({ 
+      current,
+      history: history.length > 0 ? history : [],
+      status: {
+        system: history.length > 0 ? 'online' : 'offline',
+        lastUpdate: current.timestamp
+      },
+      source: history.length > 0 ? 'firestore' : 'mock'
+    });
+  } catch (err) {
+    console.error("Firestore read error:", err);
+    // Fallback to mock if DB fails
+    res.json({ current: mockCurrent(), history: [], status: { system: 'error' }, source: 'mock' });
+  }
 });
 
 // Vite/Static serving wrapper

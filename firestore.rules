@@ -1,0 +1,34 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Catch-all deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+
+    function isValidTelemetry(data) {
+      return data.temp is number && 
+             data.humidity is number && 
+             data.rain is int &&
+             (data.ip == null || (data.ip is string && data.ip.size() <= 64)) &&
+             data.timestamp is timestamp;
+    }
+
+    // Telemetry Collection
+    match /telemetry/{readingId} {
+      // Allow public reading for the dashboard display
+      allow read: if true; 
+      
+      // We allow creation if schema is valid
+      // In a production app, we would restrict this to an API key or authed node
+      allow create: if isValidTelemetry(incoming());
+      
+      // History should be immutable
+      allow update, delete: if false;
+    }
+  }
+}

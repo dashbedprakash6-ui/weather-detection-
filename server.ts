@@ -84,16 +84,23 @@ app.get("/api/data", async (req, res) => {
       };
     }).reverse();
 
-    const current = history.length > 0 ? history[history.length - 1] : mockCurrent();
+    // Generate synthetic history if empty
+    const finalHistory = history.length > 0 ? history : Array.from({ length: 15 }).map((_, i) => ({
+      ...mockCurrent(),
+      temp: 22 + Math.sin(i / 2) * 5,
+      timestamp: new Date(Date.now() - (15 - i) * 60000).toISOString()
+    }));
+
+    const current = history.length > 0 ? history[history.length - 1] : finalHistory[finalHistory.length - 1];
 
     res.json({ 
       current,
-      history: history.length > 0 ? history : [],
+      history: finalHistory,
       status: {
         system: history.length > 0 ? 'online' : 'offline',
         lastUpdate: current.timestamp
       },
-      source: history.length > 0 ? 'firestore' : 'mock'
+      source: history.length > 0 ? 'firestore' : 'synthetic'
     });
   } catch (err) {
     console.error("Firestore read error:", err);

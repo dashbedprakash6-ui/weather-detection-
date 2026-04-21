@@ -13,11 +13,14 @@ import {
   serverTimestamp,
   Timestamp 
 } from "firebase/firestore";
-import firebaseConfig from "../firebase-applet-config.json" assert { type: "json" };
+import { readFileSync } from "fs";
+import { join } from "path";
 
 const app = express();
 
 // Initialize Firebase
+const configPath = join(process.cwd(), "firebase-applet-config.json");
+const firebaseConfig = JSON.parse(readFileSync(configPath, "utf8"));
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId);
 

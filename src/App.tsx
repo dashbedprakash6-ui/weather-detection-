@@ -647,6 +647,9 @@ export default function App() {
           <span>Nexus Climate Grid • Phase 4 Operational</span>
         </div>
         <div className="flex gap-8">
+          {data?.current.ip && (
+            <span className="text-station-accent animate-pulse font-bold">Node IP: {data.current.ip}</span>
+          )}
           <span className="hover:text-station-accent transition-colors cursor-help">Latency: 24ms</span>
           <span className="hover:text-station-accent transition-colors cursor-help">Kernel: WX01.4</span>
           <span>© 2026 Core Analytics</span>

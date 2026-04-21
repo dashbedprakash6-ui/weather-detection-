@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS - Project Presentation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=JetBrains+Mono&family=Libre+Baskerville:italic@400&display=swap');
+
+        :root {
+            --bg: #0C0D0E;
+            --accent: #F27D26;
+            --text: #ffffff;
+            --subtext: rgba(255, 255, 255, 0.6);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        .presentation {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            transition: transform 0.8s cubic-bezier(0.85, 0, 0.15, 1);
+        }
+
+        .slide {
+            min-width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem;
+            position: relative;
+            text-align: center;
+        }
+
+        /* Atmosphere Glows */
+        .glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.1;
+            filter: blur(80px);
+            z-index: -1;
+        }
+
+        .glow-1 { top: -10%; left: -10%; animate: float 10s infinite; }
+        .glow-2 { bottom: -10%; right: -10%; opacity: 0.05; }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(30px, 20px); }
+        }
+
+        h1 {
+            font-size: 5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: -0.05em;
+            line-height: 0.9;
+        }
+
+        h1 span {
+            color: var(--accent);
+            font-family: 'Libre Baskerville', serif;
+            font-style: italic;
+        }
+
+        h2 {
+            font-family: 'Libre Baskerville', serif;
+            font-style: italic;
+            font-size: 3.5rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            line-height: 1.1;
+        }
+
+        p {
+            font-size: 1.5rem;
+            color: var(--subtext);
+            max-width: 800px;
+            line-height: 1.6;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--accent);
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .features {
+            display: grid;
+            grid-template-cols: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 3rem;
+            text-align: left;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .feature-item {
+            border-left: 2px solid var(--accent);
+            padding-left: 1.5rem;
+        }
+
+        .feature-item h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .feature-item p {
+            font-size: 1rem;
+        }
+
+        /* Navigation */
+        .controls {
+            position: fixed;
+            bottom: 3rem;
+            right: 3rem;
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        button {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            padding: 1rem 2rem;
+            font-size: 0.8rem;
+            font-family: 'JetBrains Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        button:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .slide-number {
+            position: fixed;
+            bottom: 3rem;
+            left: 3rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--subtext);
+        }
+    </style>
+</head>
+<body>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <div class="presentation" id="deck">
+        <!-- Slide 1: Title -->
+        <section class="slide">
+            <div class="mono">Project Nexus Phase 1</div>
+            <h1>The Weather<span>Intelligence</span>Station</h1>
+            <p>Bridging the gap between raw sensors and human decisions.</p>
+        </section>
+
+        <!-- Slide 2: Problem -->
+        <section class="slide">
+            <div class="mono">The Challenge</div>
+            <h2>Data is <span>Silent</span></h2>
+            <p>Traditional weather stations show numbers like "32°C" or "70% Humidity." But a number without context is a missed warning.</p>
+        </section>
+
+        <!-- Slide 3: Solution -->
+        <section class="slide">
+            <div class="mono">Innovation</div>
+            <h2>Meet the <span>Neural</span> Station</h2>
+            <p>Nexus uses an ESP8266 sensor core combined with Google Gemini AI to transform data into human-readable advice.</p>
+        </section>
+
+        <!-- Slide 4: Neural Forecasting -->
+        <section class="slide">
+            <div class="mono">Advanced Feature 01</div>
+            <h2>Predictive <span>Forecasting</span></h2>
+            <p>Our Neural Engine analyzes trends from the last 60 minutes to predict the future state before it happens.</p>
+        </section>
+
+        <!-- Slide 5: Energy Intelligence -->
+        <section class="slide">
+            <div class="mono">Advanced Feature 02</div>
+            <h2>Energy <span>Optimization</span></h2>
+            <p>Nexus acts as a Digital Twin for the home, recommending power modes based on atmospheric shifts to promote sustainability.</p>
+            <div class="features">
+                <div class="feature-item">
+                    <h3>Solar Priority</h3>
+                    <p>Activated during high thermals</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Grid Protection</h3>
+                    <p>Alerts issued during rain risks</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Slide 6: Design & Accessibility -->
+        <section class="slide">
+            <div class="mono">Final Design</div>
+            <h2>Interface <span>Atmosphere</span></h2>
+            <p>Instant vocal alerts and text translations in 5 languages (Hindi, Odia, Bengali, Tamil). A UI that glows with the weather.</p>
+        </section>
+    </div>
+
+    <div class="slide-number" id="count">01 / 06</div>
+
+    <div class="controls">
+        <button onclick="prevSlide()">Pre</button>
+        <button onclick="nextSlide()">Next</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = 6;
+        const deck = document.getElementById('deck');
+        const count = document.getElementById('count');
+
+        function updateSlide() {
+            deck.style.transform = `translateX(-${currentSlide * 100}vw)`;
+            count.innerText = `0${currentSlide + 1} / 06`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+    </script>
+</body>
+</html>

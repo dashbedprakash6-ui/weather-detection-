@@ -27,7 +27,8 @@ import {
 import { GoogleGenAI, Type } from "@google/genai";
 import { DashboardData, WeatherAnalysis } from './types';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const GEMINI_KEY = process.env.GEMINI_API_KEY;
+const ai = GEMINI_KEY ? new GoogleGenAI({ apiKey: GEMINI_KEY }) : null;
 
 export default function App() {
   const [data, setData] = useState<DashboardData | null>(null);
@@ -65,6 +66,10 @@ export default function App() {
 
   const handleAnalyze = async () => {
     if (!data) return;
+    if (!ai) {
+      setError("AI Core missing API Credentials. Please set GEMINI_API_KEY in Vercel environment.");
+      return;
+    }
     setAnalyzing(true);
     
     try {
